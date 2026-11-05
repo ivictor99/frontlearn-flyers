@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Tool caches (Playwright browsers, npm cache, Vite cache…)
+.cache/
+.local/
+.npm/
+.vite/
+.playwright-cli/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.venv/
+.tox/
+.nx/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Runtime data — recreated on first run (db.json seeds itself, uploads/ starts empty)
+data/
+
+# Scratch folders
+shots/
+uploads/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Editor & OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sandbox artefacts
+.sudo_as_admin_successful
