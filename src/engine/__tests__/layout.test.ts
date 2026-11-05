@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { DEFAULT_BRAND } from '../brand';
+import { describe, expect, it, vi } from 'vitest';
+import { DEFAULT_BRAND, readableOn } from '../brand';
 import { resolveLayout } from '../layout';
 import { BUILTIN_TEMPLATES } from '../templates';
 import { fitText, wrapText } from '../typography';
@@ -191,6 +191,25 @@ describe('layout engine', () => {
       expect(layout.height).toBeGreaterThan(0);
       expect(layout.blocks.length).toBeGreaterThan(0);
       expect(layout.overflowed).toBe(false);
+    }
+  });
+
+  it('resolves layouts without a Node process global', () => {
+    vi.stubGlobal('process', undefined);
+    try {
+      const layout = resolveWith({ headline: 'Applications are closing' }, 'admissions-closing');
+      expect(layout.blocks.length).toBeGreaterThan(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('keeps Applications Closing supporting copy readable on its dark background', () => {
+    const layout = resolveWith({ body: 'Applications close soon.' }, 'admissions-closing');
+    const body = layout.blocks.find((block) => block.kind === 'text' && block.id === 'body');
+    expect(body?.kind).toBe('text');
+    if (body?.kind === 'text') {
+      expect(body.text.color).toBe(readableOn(DEFAULT_BRAND.colors.primary));
     }
   });
 

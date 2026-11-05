@@ -56,6 +56,7 @@ const PER_TEMPLATE: Record<string, FlyerContent> = {
 export function TemplateThumb({ template, brand, content, className, active = true }: TemplateThumbProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [visible, setVisible] = useState(active);
+  const [renderError, setRenderError] = useState<string | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -74,14 +75,24 @@ export function TemplateThumb({ template, brand, content, className, active = tr
       }
       if (cancelled) return;
       try {
-        await paintFlyer(canvas, {
+        const stagingCanvas = document.createElement('canvas');
+        await paintFlyer(stagingCanvas, {
           template,
           brand,
           content: content ?? PER_TEMPLATE[template.id] ?? DEMO_CONTENT,
           scale,
         });
-      } catch {
-        /* ignore */
+        if (cancelled) return;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas is not available in this browser.');
+        canvas.width = stagingCanvas.width;
+        canvas.height = stagingCanvas.height;
+        context.drawImage(stagingCanvas, 0, 0);
+        setRenderError(null);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`Could not render the "${template.name}" template thumbnail.`, error);
+        if (!cancelled) setRenderError(message);
       }
     };
 
@@ -95,7 +106,7 @@ export function TemplateThumb({ template, brand, content, className, active = tr
 
   return (
     <div
-      className={className}
+      className={`template-thumb${className ? ` ${className}` : ''}`}
       ref={(node) => {
         if (node && !visible) {
           const observer = new IntersectionObserver((entries) => {
@@ -113,6 +124,11 @@ export function TemplateThumb({ template, brand, content, className, active = tr
         style={{ aspectRatio: `${aspect.width} / ${aspect.height}` }}
         aria-label={`${template.name} example`}
       />
+      {renderError ? (
+        <span className="template-thumb__error" role="alert">
+          Preview unavailable: {renderError}
+        </span>
+      ) : null}
     </div>
   );
 }

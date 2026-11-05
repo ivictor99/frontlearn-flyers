@@ -115,6 +115,15 @@ export class Store {
         changed = true;
       }
     }
+    const closing = db.templates.find((template) => template.id === 'admissions-closing' && template.builtin);
+    const body = closing?.layout.bands
+      .find((band) => band.id === 'detail')
+      ?.columns?.flatMap((column) => column.blocks)
+      .find((block) => block.id === 'body');
+    if (body && !body.style?.color) {
+      body.style = { ...body.style, color: 'on-primary' };
+      changed = true;
+    }
     if (changed) this.save(db);
   }
 

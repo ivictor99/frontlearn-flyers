@@ -230,7 +230,7 @@ export const admissionsClosing: Template = makeTemplate({
         {
           w: 1,
           blocks: [
-            { id: 'body', kind: 'text', field: 'body', role: 'body', priority: 7 },
+            { id: 'body', kind: 'text', field: 'body', role: 'body', priority: 7, style: { color: 'on-primary' } },
             {
               id: 'highlights',
               kind: 'list',

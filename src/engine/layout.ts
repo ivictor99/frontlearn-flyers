@@ -292,7 +292,7 @@ function compose(
   }
 
   const overflowed = flowEnd > canvasH + 1 || bottomY > canvasH + 1;
-  if (process.env.FLYER_DEBUG) {
+  if (typeof process !== 'undefined' && process.env.FLYER_DEBUG) {
     console.log(
       '[compose]',
       'img', config.imageScale,

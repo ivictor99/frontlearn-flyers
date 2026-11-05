@@ -35,6 +35,7 @@ export function FlyerCanvas({
   const frameRef = useRef<HTMLDivElement | null>(null);
   const latest = useRef(0);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
 
   // Fit the flyer inside whatever space the layout gives it.
   useEffect(() => {
@@ -73,10 +74,20 @@ export function FlyerCanvas({
       }
       if (cancelled || run !== latest.current) return;
       try {
-        const layout = await paintFlyer(canvas, { template, brand, content, scale, assets, guides });
-        if (!cancelled && run === latest.current) onLayout?.(layout);
-      } catch {
-        /* a render failure should never blank the whole editor */
+        const stagingCanvas = document.createElement('canvas');
+        const layout = await paintFlyer(stagingCanvas, { template, brand, content, scale, assets, guides });
+        if (cancelled || run !== latest.current) return;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas is not available in this browser.');
+        canvas.width = stagingCanvas.width;
+        canvas.height = stagingCanvas.height;
+        context.drawImage(stagingCanvas, 0, 0);
+        setRenderError(null);
+        onLayout?.(layout);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`Could not render the "${template.name}" flyer preview.`, error);
+        if (!cancelled && run === latest.current) setRenderError(message);
       }
     };
 
@@ -93,6 +104,11 @@ export function FlyerCanvas({
         style={fitted ? { width: fitted.width, height: fitted.height } : undefined}
         aria-label={`${template.name} flyer preview`}
       />
+      {renderError ? (
+        <span className="flyer-canvas__error" role="alert">
+          Preview unavailable: {renderError}
+        </span>
+      ) : null}
     </div>
   );
 }
