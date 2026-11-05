@@ -6,6 +6,12 @@ gets a designed flyer they can download — without touching a design tool.
 > I provide the information. The system handles the design. I receive a professional
 > school flyer.
 
+## Running and publishing
+
+`DEPLOY.md` has the full guide: running it locally, the `.env` file, pushing to
+GitHub (token, SSH or the GitHub CLI), and deploying with Docker, Render/Railway or a
+school server behind nginx.
+
 ## Quick start
 
 ```bash
